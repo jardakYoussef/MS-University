@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Class</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="mt-5">Create Class</h1>
+
+    <form id="createClassForm" class="mt-4">
+      <div class="mb-3">
+        <label for="className" class="form-label">Class Name:</label>
+        <input type="text" class="form-control" id="className" name="className" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#createClassForm').submit(function(e) {
+        e.preventDefault();
+        var className = $('#className').val();
+        createClass(className);
+      });
+
+      function createClass(className) {
+        $.ajax({
+          url: 'http://localhost:3000/class',
+          type: 'POST',
+          data: JSON.stringify({ name: className }),
+          contentType: 'application/json',
+          success: function(response) {
+            console.log('Class created:', response);
+            alert('Class created successfully!');
+          },
+          error: function(error) {
+            console.error('Error creating class:', error);
+            alert('Failed to create class. Please try again.');
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

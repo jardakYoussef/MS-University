@@ -1,0 +1,41 @@
+server:
+  port: 8054
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "*"
+            allowed-methods: "*"
+            allowed-headers: "*"
+      routes:
+        - id: student-service
+          uri: lb://student-service
+          predicates:
+            - Path=/students/**
+        - id : auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/v1/**
+        - id: class-service
+          uri: lb://class-service
+          predicates:
+            - Path=/class/**
+        - id: forecast-service
+          uri: lb://forecast-service
+          predicates:
+            - Path=/forecasts/**
+        - id: front-service
+          uri: lb://front-service
+          predicates:
+            - Path=/UI/**
+eureka:
+  instance:
+    appname: ${spring.application.name}
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka

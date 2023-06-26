@@ -1,0 +1,92 @@
+version: "3.8"
+services:
+    Auth:
+      container_name: ms-auth-service
+      build: ./auth
+      ports:
+        - "8081:8081"
+      hostname: authentification
+      environment:
+        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      image: "auth-service"
+      depends_on:
+        - Eureka
+
+    Gateway:
+      container_name: ms-api-gateway
+      build: ./api-gateway
+      ports:
+        - "8054:8054"
+      hostname: api-gateway
+      environment:
+        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      image: "api-gateway"
+      depends_on:
+        - Eureka
+    Eureka:
+      container_name: ms-eureka
+      build: ./eureka
+      ports:
+        - "8761:8761"
+      hostname: eureka-server
+      image: "eureka-server"
+      environment:
+        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    configserver:
+      container_name: ms-configserver
+      build: ./configserver
+      ports:
+        - "8888:8888"
+      hostname: configserver
+      image: "configserver"
+      environment:
+        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    Mongo:
+        container_name: ms-Mongo
+        image: "mongo:5-focal"
+        ports:
+          - "27017:27017"
+        hostname: mongodb
+        depends_on:
+          - "Eureka"
+    student-service:
+      container_name: student-service
+      build: ./student-service
+      ports:
+        - "8083:8083"
+      hostname: student
+      environment:
+        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+        - SPRING_CLOUD_CONFIG_URI=http://configserver:8888/
+
+      image: "student-service"
+      depends_on:
+        - Eureka
+        - Mongo
+        - configserver
+    class-service:
+      container_name: class-service
+      build: ./js/api
+      ports:
+        - "3000:3000"
+      hostname: class
+      environment:
+        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=eureka-server
+      image: class-service
+      depends_on:
+        - Eureka
+        - Mongo
+      command: "node ./server.js"
+    front-service:
+      container_name: front-service
+      build: ./js/front
+      ports:
+        - "3001:3001"
+      hostname: front
+      environment:
+        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=eureka-server
+      image: front-service
+      depends_on:
+        - Eureka
+        - Mongo
+      command: "node ./server.js"
